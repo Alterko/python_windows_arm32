@@ -29,12 +29,12 @@ jobs:
           tar xf v3.8.4.tar.gz
           cd cpython-3.8.4
           PCbuild\build.bat -e -p ARM
-          dir PCBuild\arm
+          dir PCBuild\arm32
 
       - name: Create zip file
         shell: cmd
         run: |
-          powershell Compress-7Zip "cpython-3.8.4\PCBuild\arm" -ArchiveFileName "Python-3.8.4-Windows-ARM.zip" -Format Zip
+          powershell Compress-7Zip "cpython-3.8.4\PCBuild\arm32" -ArchiveFileName "Python-3.8.4-Windows-ARM.zip" -Format Zip
 
       - name: Create GitHub Release
         id: create_release
