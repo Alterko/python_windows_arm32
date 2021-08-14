@@ -1,6 +1,6 @@
 # This is a basic workflow to help you get started with Actions
 
-name: CI
+name: BuildPythonArm32
 
 # Controls when the action will run. Triggers the workflow on push or pull request
 # events but only for the master branch
@@ -50,7 +50,7 @@ jobs:
           prerelease: true
 
       - name: Upload GitHub Release File
-        id: upload-release-asset-arm64
+        id: upload-release-asset-arm
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
