@@ -1,0 +1,61 @@
+# This is a basic workflow to help you get started with Actions
+
+name: CI
+
+# Controls when the action will run. Triggers the workflow on push or pull request
+# events but only for the master branch
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "build"
+  build:
+    # The type of runner that the job will run on
+    runs-on: windows-latest
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      - name: Install 7Zip PowerShell Module
+        shell: powershell
+        run: Install-Module 7Zip4PowerShell -Force -Verbose
+
+      - name: Compile Python
+        run: |
+          curl -O -L https://github.com/python/cpython/archive/v3.8.4.tar.gz
+          tar xf v3.8.4.tar.gz
+          cd cpython-3.8.4
+          PCbuild\build.bat -e -p ARM
+          dir PCBuild\arm
+
+      - name: Create zip file
+        shell: cmd
+        run: |
+          powershell Compress-7Zip "cpython-3.8.4\PCBuild\arm" -ArchiveFileName "Python-3.8.4-Windows-ARM.zip" -Format Zip
+
+      - name: Create GitHub Release
+        id: create_release
+        uses: actions/create-release@latest
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          body: |
+            Automated Release by GitHub Action CI
+          draft: true
+          prerelease: true
+
+      - name: Upload GitHub Release File
+        id: upload-release-asset-arm64
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./Python-3.8.4-Windows-ARM.zip
+          asset_name: Python-3.8.4-Windows-ARM.zip
+          asset_content_type: application/zip
